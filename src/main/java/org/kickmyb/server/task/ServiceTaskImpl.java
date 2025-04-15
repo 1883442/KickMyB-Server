@@ -5,6 +5,7 @@ import org.kickmyb.server.account.MUser;
 import org.kickmyb.server.account.MUserRepository;
 import org.kickmyb.transfer.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,6 +78,42 @@ public class ServiceTaskImpl implements ServiceTask {
         user.tasks.add(t);
         repoUser.save(user);
     }
+
+
+    @Override
+    public void deleteOne(Integer id, MUser user) {
+        MTask userTask = repo.findById(id.longValue()).orElse(null);
+        if(userTask.equals(null))
+        {
+            return;
+        }
+        boolean existe  = user.tasks.stream().anyMatch(task -> task.id.equals(userTask.id));
+        if(existe)
+        {
+            MTask task = user.tasks.stream()
+                    .filter(t -> t.id.equals(userTask.id))
+                    .findFirst()
+                    .orElse(null);
+            if(task == null)
+            {
+                return;
+            }
+//            repo.delete(task);
+            user.tasks.removeIf(t -> t.id.equals(userTask.id));
+//            repo.findById(1L);
+        } else {
+                return;
+        }
+
+
+    }
+
+
+
+
+
+
+
 
     @Override
     public void updateProgress(long taskID, int value) {
